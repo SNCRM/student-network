@@ -56,7 +56,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Predefined Responses (Fast but Limited)
+        // Predefined Responses for Common Questions
         const predefinedReplies = {
             "how do i apply": "You can apply by clicking the 'Apply Now' button on our website.",
             "what courses do you offer": "We offer a wide range of courses. Check out our courses page!",
@@ -110,7 +110,7 @@
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer sk-YOUR-OPENAI-KEY"
+                    "Authorization": "Bearer sk-YOUR-REAL-OPENAI-KEY"  // Replace with your actual OpenAI API key
                 },
                 body: JSON.stringify({
                     model: "gpt-3.5-turbo",
