@@ -38,19 +38,21 @@
 
     <!-- Firebase & AI Chatbot Scripts -->
     <script type="module">
-        // Firebase SDK
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+        // Import Firebase SDKs
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
+        // Firebase Configuration (ONLY ONE!)
         const firebaseConfig = {
-            apiKey: "YOUR-API-KEY",
-            authDomain: "YOUR-PROJECT-ID.firebaseapp.com",
-            projectId: "YOUR-PROJECT-ID",
-            storageBucket: "YOUR-PROJECT-ID.appspot.com",
-            messagingSenderId: "YOUR-MESSAGING-SENDER-ID",
-            appId: "YOUR-APP-ID"
+            apiKey: "AIzaSyDRHx9LDFXXyEswbj-ku5hAVZNqb2s9HTQ",
+            authDomain: "student-network-chat.firebaseapp.com",
+            projectId: "student-network-chat",
+            storageBucket: "student-network-chat.appspot.com",
+            messagingSenderId: "370386015633",
+            appId: "1:370386015633:web:5ae1c95962fc1804f13630"
         };
 
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
@@ -85,24 +87,6 @@
 
             // Save Message to Firestore
             await addDoc(collection(db, "messages"), { sender: "User", text: message, timestamp: new Date() });
-
-            // Fetch AI Response Securely from Backend
-            const response = await fetch("/api/chat", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ message })
-            });
-
-            const responseData = await response.json();
-            const aiReply = responseData.reply;
-
-            // Display AI Response
-            displayMessage("AI Assistant", aiReply);
-
-            // Save AI Response to Firestore
-            await addDoc(collection(db, "messages"), { sender: "AI", text: aiReply, timestamp: new Date() });
         });
     </script>
 
