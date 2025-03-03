@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content= "width=device-width, initial-scale=1.0">
     <meta name="description" content="Student Network - Helping students find universities worldwide. Apply, get visa guidance, and explore opportunities.">
     <meta name="keywords" content="study abroad, student visa, university admissions, international students, student network, higher education, UK universities, scholarships">
     <meta name="author" content="Student Network">
@@ -22,10 +22,71 @@
             </ul>
         </nav>
     </header>
+    
     <main>
         <h2>Your Future Starts Here</h2>
         <p>Join top universities around the world and explore global opportunities.</p>
         <a href="#" class="apply-button">Apply Now</a>
     </main>
+
+    <!-- AI Chatbot -->
+    <div id="chat-container">
+        <div id="chat-box"></div>
+        <input type="text" id="chat-input" placeholder="Ask me anything...">
+        <button id="send-btn">Send</button>
+    </div>
+
+    <!-- Firebase & AI Chatbot Scripts -->
+    <script type="module">
+        // Firebase SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "YOUR-API-KEY",
+            authDomain: "YOUR-PROJECT-ID.firebaseapp.com",
+            projectId: "YOUR-PROJECT-ID",
+            storageBucket: "YOUR-PROJECT-ID.appspot.com",
+            messagingSenderId: "YOUR-MESSAGING-SENDER-ID",
+            appId: "YOUR-APP-ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Chatbot Functionality
+        document.getElementById("send-btn").addEventListener("click", async () => {
+            const message = document.getElementById("chat-input").value;
+            if (!message.trim()) return;
+            document.getElementById("chat-input").value = "";
+
+            // Display User Message
+            const chatBox = document.getElementById("chat-box");
+            chatBox.innerHTML += `<p><strong>You:</strong> ${message}</p>`;
+
+            // Save Message to Firestore
+            await addDoc(collection(db, "messages"), { text: message, timestamp: new Date() });
+
+            // Fetch AI Response
+            const response = await fetch("https://api.openai.com/v1/completions", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer YOUR-OPENAI-API-KEY"
+                },
+                body: JSON.stringify({
+                    model: "gpt-3.5-turbo",
+                    messages: [{ role: "user", content: message }]
+                })
+            });
+
+            const responseData = await response.json();
+            const aiReply = responseData.choices[0].message.content;
+
+            // Display AI Response
+            chatBox.innerHTML += `<p><strong>AI:</strong> ${aiReply}</p>`;
+        });
+    </script>
+
 </body>
 </html>
