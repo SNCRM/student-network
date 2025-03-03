@@ -85,7 +85,3 @@ main {
     cursor: pointer;
     border-radius: 5px;
 }
-
-#send-btn:hover {
-    background: #660000;
-}
