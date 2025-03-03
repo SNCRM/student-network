@@ -42,7 +42,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
         import { getFirestore, collection, addDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
-        // Firebase Configuration (ONLY ONE!)
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDRHx9LDFXXyEswbj-ku5hAVZNqb2s9HTQ",
             authDomain: "student-network-chat.firebaseapp.com",
@@ -55,6 +55,15 @@
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+
+        // Predefined Responses (Fast but Limited)
+        const predefinedReplies = {
+            "how do i apply": "You can apply by clicking the 'Apply Now' button on our website.",
+            "what courses do you offer": "We offer a wide range of courses. Check out our courses page!",
+            "how much does tuition cost": "Tuition fees depend on the university. Contact us for details!",
+            "how long does visa processing take": "Visa processing times vary by country. Check the official visa website for details.",
+            "do you provide scholarships": "Yes! We help students find scholarships. Visit our Scholarships page for more info."
+        };
 
         // Function to Display Messages
         function displayMessage(sender, text) {
@@ -78,15 +87,45 @@
         });
 
         document.getElementById("send-btn").addEventListener("click", async () => {
-            const message = document.getElementById("chat-input").value;
-            if (!message.trim()) return;
+            const message = document.getElementById("chat-input").value.trim().toLowerCase();
+            if (!message) return;
             document.getElementById("chat-input").value = "";
 
             // Display User Message
             displayMessage("You", message);
 
-            // Save Message to Firestore
+            // Save User Message to Firestore
             await addDoc(collection(db, "messages"), { sender: "User", text: message, timestamp: new Date() });
+
+            // Check for predefined response
+            if (predefinedReplies[message]) {
+                const reply = predefinedReplies[message];
+                displayMessage("AI Assistant", reply);
+                await addDoc(collection(db, "messages"), { sender: "AI", text: reply, timestamp: new Date() });
+                return;
+            }
+
+            // Fetch AI Response from OpenAI API
+            const response = await fetch("https://api.openai.com/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer sk-YOUR-OPENAI-KEY"
+                },
+                body: JSON.stringify({
+                    model: "gpt-3.5-turbo",
+                    messages: [{ role: "user", content: message }]
+                })
+            });
+
+            const responseData = await response.json();
+            const aiReply = responseData.choices[0].message.content;
+
+            // Display AI Response
+            displayMessage("AI Assistant", aiReply);
+
+            // Save AI Response to Firestore
+            await addDoc(collection(db, "messages"), { sender: "AI", text: aiReply, timestamp: new Date() });
         });
     </script>
 
